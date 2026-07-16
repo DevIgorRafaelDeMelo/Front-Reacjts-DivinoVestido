@@ -745,9 +745,21 @@ export default function AdminPage({ setCurrentPage }) {
                 (appointmentDate - todayDate) / (1000 * 60 * 60 * 24);
               return diff > 0 && diff <= 7;
             })
+            .sort((a, b) => {
+              const dateA = new Date(a.date);
+              const dateB = new Date(b.date);
+              if (dateA.getTime() !== dateB.getTime()) {
+                return dateA - dateB;
+              }
+
+              const hourA = a.hour ? parseInt(a.hour, 10) : 0;
+              const hourB = b.hour ? parseInt(b.hour, 10) : 0;
+              return hourA - hourB;
+            })
             .map((a) => {
               const isBlocked = a.blocked === true;
               const isOpen = openCardId === a.id;
+
               return (
                 <div
                   key={a.id}
@@ -762,7 +774,7 @@ export default function AdminPage({ setCurrentPage }) {
                   <div className="flex justify-between items-center mb-2">
                     <div>
                       <div className="text-sm font-semibold text-gray-700">
-                        {formatDate(a.date)}
+                        {formatDate(addDays(a.date, 1))}
                       </div>
                       {!isBlocked && (
                         <h3 className="text-sm font-bold text-yellow-500">
@@ -910,7 +922,7 @@ export default function AdminPage({ setCurrentPage }) {
                   <div className="flex justify-between items-center mb-2">
                     <div>
                       <div className="text-sm font-semibold text-gray-700">
-                        {formatDate(a.date)}
+                        {formatDate(addDays(a.date, 1))}
                       </div>
                       {!isBlocked && (
                         <h3 className="text-sm font-bold text-yellow-500">
