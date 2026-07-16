@@ -129,6 +129,96 @@ export default function AdminPage({ setCurrentPage }) {
     setNotifications(data);
   };
 
+  const addDays = (date, days) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  // Verifica se a data está na semana atual
+  const isThisWeek = (date) => {
+    const d = new Date(date);
+    const now = new Date();
+    const start = new Date(now);
+    start.setDate(now.getDate() - now.getDay()); // domingo
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6); // sábado
+    return d >= start && d <= end;
+  };
+
+  // Verifica se a data está no mês atual
+  const isThisMonth = (date) => {
+    const d = new Date(date);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  };
+
+  // Função para renderizar uma linha
+  const renderRow = (a, isToday = false) => {
+    const isBlocked = a.blocked === true;
+    const isDayBlocked = isBlocked && !a.hour;
+    const isHourBlocked = isBlocked && a.hour;
+
+    return (
+      <tr
+        key={a.id}
+        className={`transition ${isToday
+          ? "bg-blue-50 border-l-4 border-blue-500 font-semibold"
+          : "odd:bg-gray-50 even:bg-white hover:bg-gray-100"
+          }`}
+      >
+        <td className="px-6 py-4 text-sm text-gray-700">{a.date}</td>
+        <td className="px-6 py-4 text-sm text-gray-700">
+          {isDayBlocked
+            ? "Dia bloqueado"
+            : isHourBlocked
+              ? `${a.hour}:00`
+              : `${a.hour}:00`}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+          {isBlocked ? "Administração" : a.nome}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-600">
+          {isBlocked ? "—" : a.telefone}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-600">
+          {isDayBlocked
+            ? "Feriado/Inativo"
+            : isHourBlocked
+              ? "Horário indisponível"
+              : a.evento}
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-600">
+          {isBlocked ? "—" : a.pessoas}
+        </td>
+        <td className="px-6 py-4 text-center">
+          {isBlocked ? (
+            <button
+              onClick={() => handleDelete(a.id)}
+              className="bg-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-700 transition font-medium text-sm"
+            >
+              Liberar agenda
+            </button>
+          ) : (
+            <div className="text-right">
+              <button
+                onClick={() => {
+                  setAppointmentToCancel(a.id);
+                  setShowCancelConfirmModal(true);
+                }}
+                className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+
+
   useEffect(() => {
     let intervalAppointments;
     let intervalNotifications;
@@ -339,9 +429,8 @@ export default function AdminPage({ setCurrentPage }) {
         </div>
 
         <div
-          className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-            menuOpen ? "max-h-screen" : "max-h-0"
-          } bg-white shadow-lg`}
+          className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${menuOpen ? "max-h-screen" : "max-h-0"
+            } bg-white shadow-lg`}
         >
           <div className="border-t border-yellow-600 w-4/5 mx-auto mt-2"></div>
 
@@ -370,7 +459,7 @@ export default function AdminPage({ setCurrentPage }) {
         </h1>
       </div>
       <div className="overflow-x-auto">
-        <div className="px-[10%]">
+        <div className="px-[10%] pb-[10%]">
           <table className="hidden md:table min-w-full bg-white rounded-lg overflow-hidden shadow-md">
             <thead>
               <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm uppercase tracking-wide">
@@ -394,11 +483,10 @@ export default function AdminPage({ setCurrentPage }) {
                 return (
                   <tr
                     key={a.id}
-                    className={`transition ${
-                      isToday
-                        ? "bg-blue-50 border-l-4 border-blue-500 font-semibold"
-                        : "odd:bg-gray-50 even:bg-white hover:bg-gray-100"
-                    }`}
+                    className={`transition ${isToday
+                      ? "bg-blue-50 border-l-4 border-blue-500 font-semibold"
+                      : "odd:bg-gray-50 even:bg-white hover:bg-gray-100"
+                      }`}
                   >
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {a.date}
@@ -415,10 +503,25 @@ export default function AdminPage({ setCurrentPage }) {
                     <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                       {isBlocked ? "Administração" : a.nome}
                     </td>
-
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {isBlocked ? "—" : a.telefone}
+                      {isBlocked ? "—" : (
+                        <a
+                          href={`https://wa.me/55${a.telefone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center bg-green-500 text-white px-3 py-2 rounded-lg shadow hover:bg-green-600 transition font-medium text-sm"
+                        >
+                          {/* Ícone do WhatsApp */}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                          </svg>
+                          {a.telefone}
+                        </a>
+                      )}
                     </td>
+
+
+
 
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {isDayBlocked
@@ -478,11 +581,10 @@ export default function AdminPage({ setCurrentPage }) {
               return (
                 <div
                   key={a.id}
-                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${
-                    isBlocked
-                      ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
-                      : "bg-white border-gray-200 hover:shadow-lg"
-                  }`}
+                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${isBlocked
+                    ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
+                    : "bg-white border-gray-200 hover:shadow-lg"
+                    }`}
                   onClick={() => setOpenCardId(isOpen ? null : a.id)}
                 >
                   <div className="absolute left-0 top-0 h-full w-1 bg-yellow-500 rounded-l-xl"></div>
@@ -490,7 +592,8 @@ export default function AdminPage({ setCurrentPage }) {
                   <div className="flex justify-between items-center mb-2">
                     <div>
                       <div className="text-sm font-semibold text-gray-700">
-                        {formatDate(a.date)}
+                        {formatDate(addDays(a.date, 1))}
+
                       </div>
                       {!isBlocked && (
                         <h3 className="text-sm font-bold text-yellow-500">
@@ -501,16 +604,14 @@ export default function AdminPage({ setCurrentPage }) {
 
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-semibold ${
-                          isBlocked ? "text-yellow-600" : "text-gray-700"
-                        }`}
+                        className={`text-xs font-semibold ${isBlocked ? "text-yellow-600" : "text-gray-700"
+                          }`}
                       >
                         {isBlocked ? "🚫 Bloqueado" : `${a.hour}:00`}
                       </span>
                       <ChevronDownIcon
-                        className={`h-5 w-5 text-gray-500 transform transition-transform ${
-                          isOpen ? "rotate-180" : "rotate-0"
-                        }`}
+                        className={`h-5 w-5 text-gray-500 transform transition-transform ${isOpen ? "rotate-180" : "rotate-0"
+                          }`}
                       />
                     </div>
                   </div>
@@ -558,7 +659,21 @@ export default function AdminPage({ setCurrentPage }) {
                         </>
                       ) : (
                         <>
-                          <p className="text-xs text-gray-500">{a.telefone}</p>
+                          <a
+                            href={`https://wa.me/${a.telefone.replace(/\D/g, "").startsWith("55")
+                              ? a.telefone.replace(/\D/g, "")
+                              : "55" + a.telefone.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm inline-flex items-end"
+                          >
+                            {/* Ícone do WhatsApp */}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                            </svg>
+                            {a.telefone}
+                          </a>
+
 
                           <div className="flex justify-between text-xs bg-gray-50 rounded-lg p-2 mb-2">
                             <div>
@@ -613,11 +728,10 @@ export default function AdminPage({ setCurrentPage }) {
               return (
                 <div
                   key={a.id}
-                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${
-                    isBlocked
-                      ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
-                      : "bg-white border-gray-200 hover:shadow-lg"
-                  }`}
+                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${isBlocked
+                    ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
+                    : "bg-white border-gray-200 hover:shadow-lg"
+                    }`}
                   onClick={() => setOpenCardId(isOpen ? null : a.id)}
                 >
                   <div className="absolute left-0 top-0 h-full w-1 bg-yellow-500 rounded-l-xl"></div>
@@ -636,16 +750,14 @@ export default function AdminPage({ setCurrentPage }) {
 
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-semibold ${
-                          isBlocked ? "text-yellow-600" : "text-gray-700"
-                        }`}
+                        className={`text-xs font-semibold ${isBlocked ? "text-yellow-600" : "text-gray-700"
+                          }`}
                       >
                         {isBlocked ? "🚫 Bloqueado" : `${a.hour}:00`}
                       </span>
                       <ChevronDownIcon
-                        className={`h-5 w-5 text-gray-500 transform transition-transform ${
-                          isOpen ? "rotate-180" : "rotate-0"
-                        }`}
+                        className={`h-5 w-5 text-gray-500 transform transition-transform ${isOpen ? "rotate-180" : "rotate-0"
+                          }`}
                       />
                     </div>
                   </div>
@@ -693,7 +805,20 @@ export default function AdminPage({ setCurrentPage }) {
                         </>
                       ) : (
                         <>
-                          <p className="text-xs text-gray-500">{a.telefone}</p>
+                          <a
+                            href={`https://wa.me/${a.telefone.replace(/\D/g, "").startsWith("55")
+                              ? a.telefone.replace(/\D/g, "")
+                              : "55" + a.telefone.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm inline-flex items-end"
+                          >
+                            {/* Ícone do WhatsApp */}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                            </svg>
+                            {a.telefone}
+                          </a>
 
                           <div className="flex justify-between text-xs bg-gray-50 rounded-lg p-2 mb-2">
                             <div>
@@ -748,11 +873,10 @@ export default function AdminPage({ setCurrentPage }) {
               return (
                 <div
                   key={a.id}
-                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${
-                    isBlocked
-                      ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
-                      : "bg-white border-gray-200 hover:shadow-lg"
-                  }`}
+                  className={`relative p-4 rounded-xl border-2 shadow-md transition cursor-pointer ${isBlocked
+                    ? "bg-gradient-to-r from-gray-100 to-gray-200 border-yellow-400"
+                    : "bg-white border-gray-200 hover:shadow-lg"
+                    }`}
                   onClick={() => setOpenCardId(isOpen ? null : a.id)}
                 >
                   <div className="absolute left-0 top-0 h-full w-1 bg-yellow-500 rounded-l-xl"></div>
@@ -771,17 +895,15 @@ export default function AdminPage({ setCurrentPage }) {
 
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-semibold ${
-                          isBlocked ? "text-yellow-600" : "text-gray-700"
-                        }`}
+                        className={`text-xs font-semibold ${isBlocked ? "text-yellow-600" : "text-gray-700"
+                          }`}
                       >
                         {isBlocked ? "🚫 Bloqueado" : `${a.hour}:00`}
                       </span>
 
                       <ChevronDownIcon
-                        className={`h-5 w-5 text-gray-500 transform transition-transform ${
-                          isOpen ? "rotate-180" : "rotate-0"
-                        }`}
+                        className={`h-5 w-5 text-gray-500 transform transition-transform ${isOpen ? "rotate-180" : "rotate-0"
+                          }`}
                       />
                     </div>
                   </div>
@@ -829,7 +951,20 @@ export default function AdminPage({ setCurrentPage }) {
                         </>
                       ) : (
                         <>
-                          <p className="text-xs text-gray-500">{a.telefone}</p>
+                          <a
+                            href={`https://wa.me/${a.telefone.replace(/\D/g, "").startsWith("55")
+                              ? a.telefone.replace(/\D/g, "")
+                              : "55" + a.telefone.replace(/\D/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm inline-flex items-end"
+                          >
+                            {/* Ícone do WhatsApp */}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4 mr-2">
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                            </svg>
+                            {a.telefone}
+                          </a>
 
                           <div className="flex justify-between text-xs bg-gray-50 rounded-lg p-2 mb-2">
                             <div>
@@ -927,11 +1062,10 @@ export default function AdminPage({ setCurrentPage }) {
                           <button
                             key={i}
                             onClick={() => handleDateClick(day)}
-                            className={`flex flex-col items-center justify-center px-2 py-2 rounded-xl transition transform hover:scale-105 shadow-md ${
-                              isToday
-                                ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold ring-2 ring-yellow-400"
-                                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                            }`}
+                            className={`flex flex-col items-center justify-center px-2 py-2 rounded-xl transition transform hover:scale-105 shadow-md ${isToday
+                              ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold ring-2 ring-yellow-400"
+                              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                              }`}
                           >
                             <span className="text-lg font-bold">
                               {day.getDate()}
