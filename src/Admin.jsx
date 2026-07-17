@@ -1657,13 +1657,18 @@ export default function AdminPage({ setCurrentPage }) {
 
                           <td className="px-6 py-4 text-sm text-gray-600">
                             {cliente.maisRecente
-                              ? new Date(cliente.maisRecente).toLocaleDateString("pt-BR", {
+                              ? new Date(
+                                new Date(cliente.maisRecente).setDate(
+                                  new Date(cliente.maisRecente).getDate() + 1
+                                )
+                              ).toLocaleDateString("pt-BR", {
                                 day: "2-digit",
                                 month: "long",
                                 year: "numeric",
                               })
                               : "—"}
                           </td>
+
                         </tr>
                       ))}
                   </tbody>
@@ -1704,12 +1709,17 @@ export default function AdminPage({ setCurrentPage }) {
                         className="transition odd:bg-gray-50 even:bg-white hover:bg-gray-100"
                       >
                         <td className="px-6 py-4 text-sm text-gray-700">
-                          {new Date(a.date).toLocaleDateString("pt-BR", {
+                          {new Date(
+                            new Date(a.date).setDate(
+                              new Date(a.date).getDate() + 1
+                            )
+                          ).toLocaleDateString("pt-BR", {
                             day: "2-digit",
                             month: "long",
                             year: "numeric",
                           })}
                         </td>
+
                         <td className="px-6 py-4 text-sm text-gray-700">
                           {a.hour ? `${a.hour}:00` : "—"}
                         </td>
