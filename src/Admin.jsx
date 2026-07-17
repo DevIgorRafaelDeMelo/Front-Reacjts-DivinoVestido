@@ -520,151 +520,166 @@ export default function AdminPage({ setCurrentPage }) {
               href="#agendamento"
               onClick={(e) => {
                 e.preventDefault();
-                setShowCalendar(true);
-                setMenuOpen(false);
+                setMenuOpen(false)
+                setCurrentPageDiv("agendamento");
               }}
-              className="relative text-lg transition duration-300 hover:text-yellow-500 after:block after:w-0 after:h-[2px] after:bg-yellow-500 hover:after:w-full after:mx-auto"
+              className={`relative transition duration-300 after:block after:w-0 after:h-[2px] after:bg-yellow-500 hover:after:w-full after:mx-auto
+      ${currentPageDiv === "agendamento" ? "text-yellow-500 font-bold after:w-full" : "text-yellow-600 hover:text-yellow-500"}`}
             >
-              Fazer agendamento
+              Agenda
+            </a>
+
+            <a
+              href="#clientes"
+              onClick={(e) => {
+                e.preventDefault();
+                setMenuOpen(false)
+                handlePageChange("clientes");
+              }}
+              className={`relative transition duration-300 after:block after:w-0 after:h-[2px] after:bg-yellow-500 hover:after:w-full after:mx-auto
+      ${currentPageDiv === "clientes" ? "text-yellow-500 font-bold after:w-full" : "text-yellow-600 hover:text-yellow-500"}`}
+            >
+              Clientes
             </a>
           </div>
         </div>
       </nav>
       {currentPageDiv === "agendamento" && (
         <>
-          <div className="overflow-x-auto">
-            <div className="px-[10%] pb-[10%]">
-              <div className="">
-                <h1
-                  className="text-2xl md:text-4xl font-serif font-bold text-gray-700 
-               mb-10 mt-20 md:mt-[15vh] text-center 
-               border-b-2 border-yellow-500 inline-block pb-2 "
-                >
-                  Painel de Agenda
-                </h1>
-              </div>
-              <table className="hidden md:table min-w-full bg-white rounded-lg overflow-hidden shadow-md">
-                <thead>
-                  <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm uppercase tracking-wide">
-                    <th className="px-6 py-3 text-left">Data</th>
-                    <th className="px-6 py-3 text-left">Horário</th>
-                    <th className="px-6 py-3 text-left">Nome</th>
-                    <th className="px-6 py-3 text-left">Telefone</th>
-                    <th className="px-6 py-3 text-left">Evento</th>
-                    <th className="px-6 py-3 text-left">Pessoas</th>
-                    <th className="px-6 py-3 text-center">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAppointments
-                    .sort((a, b) => {
-                      const dateA = new Date(a.date);
-                      const dateB = new Date(b.date);
-                      if (dateA.getTime() !== dateB.getTime()) {
-                        return dateA - dateB;
-                      }
+          <div className="overflow-x-auto px-[5%] pb-[10%]">
 
-                      const hourA = a.hour ? parseInt(a.hour, 10) : 0;
-                      const hourB = b.hour ? parseInt(b.hour, 10) : 0;
-                      return hourA - hourB;
-                    })
-                    .map((a) => {
-                      const isToday = a.date === today;
-                      const isBlocked = a.blocked === true;
+            <div className="">
 
-                      const isDayBlocked = isBlocked && !a.hour;
-                      const isHourBlocked = isBlocked && a.hour;
-
-                      return (
-                        <tr
-                          key={a.id}
-                          className={`transition ${isToday
-                            ? "bg-blue-50 border-l-4 border-blue-500 font-semibold"
-                            : "odd:bg-gray-50 even:bg-white hover:bg-gray-100"
-                            }`}
-                        >
-                          <td className="px-6 py-4 text-sm text-gray-700">
-                            {new Date(new Date(a.date).setDate(new Date(a.date).getDate() + 1))
-                              .toLocaleDateString("pt-BR", {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric"
-                              })}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-gray-700">
-                            {isDayBlocked
-                              ? "Dia bloqueado"
-                              : isHourBlocked
-                                ? `${a.hour}:00`
-                                : `${a.hour}:00`}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                            {isBlocked
-                              ? "Administração"
-                              : a.nome.charAt(0).toUpperCase() + a.nome.slice(1).toLowerCase()}
-                          </td>
-
-
-                          <td className="px-6 py-4 text-sm text-gray-600">
-                            {isBlocked ? "—" : (
-                              <a
-                                href={`https://wa.me/55${a.telefone.replace(/\D/g, "")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
-                              >
-                                {/* Ícone do WhatsApp */}
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
-                                  <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
-                                </svg>
-                                {a.telefone}
-                              </a>
-                            )}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-gray-600">
-                            {isDayBlocked
-                              ? "Feriado/Inativo"
-                              : isHourBlocked
-                                ? "Horário indisponível"
-                                : a.evento}
-                          </td>
-
-                          <td className="px-6 py-4 text-sm text-gray-600">
-                            {isBlocked ? "—" : a.pessoas}
-                          </td>
-
-                          <td className="px-6 py-4 text-center">
-                            {isBlocked ? (
-                              <button
-                                onClick={() => handleDelete(a.id)}
-                                className="bg-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-700 transition font-medium text-sm"
-                              >
-                                Liberar agenda
-                              </button>
-                            ) : (
-                              <div className="text-right">
-                                <button
-                                  onClick={() => {
-                                    setAppointmentToCancel(a.id);
-                                    setShowCancelConfirmModal(true);
-                                  }}
-                                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-
-                </tbody>
-              </table>
+              <h1
+                className="text-xl md:text-4xl font-serif font-bold text-gray-700 
+        mb-6 mt-10 md:mt-[15vh] text-center 
+        border-b-2 border-yellow-500 inline-block pb-2 mt-16"
+              >
+                Painel de Agenda
+              </h1>
             </div>
+            <table className="hidden md:table min-w-full bg-white rounded-lg overflow-hidden shadow-md">
+              <thead>
+                <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm uppercase tracking-wide">
+                  <th className="px-6 py-3 text-left">Data</th>
+                  <th className="px-6 py-3 text-left">Horário</th>
+                  <th className="px-6 py-3 text-left">Nome</th>
+                  <th className="px-6 py-3 text-left">Telefone</th>
+                  <th className="px-6 py-3 text-left">Evento</th>
+                  <th className="px-6 py-3 text-left">Pessoas</th>
+                  <th className="px-6 py-3 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppointments
+                  .sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    if (dateA.getTime() !== dateB.getTime()) {
+                      return dateA - dateB;
+                    }
+
+                    const hourA = a.hour ? parseInt(a.hour, 10) : 0;
+                    const hourB = b.hour ? parseInt(b.hour, 10) : 0;
+                    return hourA - hourB;
+                  })
+                  .map((a) => {
+                    const isToday = a.date === today;
+                    const isBlocked = a.blocked === true;
+
+                    const isDayBlocked = isBlocked && !a.hour;
+                    const isHourBlocked = isBlocked && a.hour;
+
+                    return (
+                      <tr
+                        key={a.id}
+                        className={`transition ${isToday
+                          ? "bg-blue-50 border-l-4 border-blue-500 font-semibold"
+                          : "odd:bg-gray-50 even:bg-white hover:bg-gray-100"
+                          }`}
+                      >
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          {new Date(new Date(a.date).setDate(new Date(a.date).getDate() + 1))
+                            .toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric"
+                            })}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          {isDayBlocked
+                            ? "Dia bloqueado"
+                            : isHourBlocked
+                              ? `${a.hour}:00`
+                              : `${a.hour}:00`}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                          {isBlocked
+                            ? "Administração"
+                            : a.nome.charAt(0).toUpperCase() + a.nome.slice(1).toLowerCase()}
+                        </td>
+
+
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {isBlocked ? "—" : (
+                            <a
+                              href={`https://wa.me/55${a.telefone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
+                            >
+                              {/* Ícone do WhatsApp */}
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                              </svg>
+                              {a.telefone}
+                            </a>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {isDayBlocked
+                            ? "Feriado/Inativo"
+                            : isHourBlocked
+                              ? "Horário indisponível"
+                              : a.evento}
+                        </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {isBlocked ? "—" : a.pessoas}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          {isBlocked ? (
+                            <button
+                              onClick={() => handleDelete(a.id)}
+                              className="bg-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-700 transition font-medium text-sm"
+                            >
+                              Liberar agenda
+                            </button>
+                          ) : (
+                            <div className="text-right">
+                              <button
+                                onClick={() => {
+                                  setAppointmentToCancel(a.id);
+                                  setShowCancelConfirmModal(true);
+                                }}
+                                className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+
+              </tbody>
+            </table>
+
 
             <div className="md:hidden space-y-6">
               <h2 className="text-lg font-bold text-gray-800 border-b border-yellow-500 pb-1">
@@ -1585,24 +1600,23 @@ export default function AdminPage({ setCurrentPage }) {
       {currentPageDiv === "clientes" && (
         <>
           <div className="overflow-x-auto">
-            <div className="px-[10%] pb-[10%]">
-              <div className="p-6   rounded-lg  ">
-                <div className="">
-                  <h1
-                    className="text-2xl md:text-4xl font-serif font-bold text-gray-700 
-               mb-10 mt-20 md:mt-[15vh] text-center 
-               border-b-2 border-yellow-500 inline-block pb-2 mb:mt-0"
-                  >
-                    Lista de clientes
-                  </h1>
-                </div>
+            <div className="px-[5%] pb-[10%]">
+              <div className="p-4 rounded-lg">
+                <h1
+                  className="text-xl md:text-4xl font-serif font-bold text-gray-700 
+        mb-6 mt-10 md:mt-[15vh] text-center 
+        border-b-2 border-yellow-500 inline-block pb-2"
+                >
+                  Lista de clientes
+                </h1>
+
+                {/* Campo de busca */}
                 <div className="flex justify-end mb-6">
                   <div className="w-full md:w-1/3">
-
                     <input
                       id="filtroClientes"
                       type="text"
-                      placeholder="Filtrar por nome & telefone  "
+                      placeholder="Filtrar por nome & telefone"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="border px-3 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 w-full"
@@ -1610,10 +1624,10 @@ export default function AdminPage({ setCurrentPage }) {
                   </div>
                 </div>
 
+                {/* Tabela para desktop */}
                 <table className="hidden md:table min-w-full bg-white rounded-lg overflow-hidden shadow-md">
                   <thead>
                     <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm uppercase tracking-wide">
-
                       <th className="px-6 py-3 text-left">Nome</th>
                       <th className="px-6 py-3 text-left">Telefone</th>
                       <th className="px-6 py-3 text-left">Qtd. Agendamentos</th>
@@ -1629,7 +1643,6 @@ export default function AdminPage({ setCurrentPage }) {
                           onClick={() => handleClienteClick(cliente)}
                           className="cursor-pointer transition odd:bg-gray-50 even:bg-white hover:bg-yellow-100"
                         >
-
                           <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                             {cliente.nome.charAt(0).toUpperCase() +
                               cliente.nome.slice(1).toLowerCase()}
@@ -1641,20 +1654,12 @@ export default function AdminPage({ setCurrentPage }) {
                               rel="noopener noreferrer"
                               className="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
                             >
-                              {/* Ícone do WhatsApp */}
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
-                                <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
-                              </svg>
                               {cliente.telefone}
                             </a>
                           </td>
-                          <td className="px-6 py-4 text-sm text-center">
-                            <span className="inline-block     text-xs font-bold px-3 py-1 rounded-full ">
-                              {cliente.quantidade}
-                            </span>
+                          <td className="px-6 py-4 text-sm text-center font-bold text-yellow-600">
+                            {cliente.quantidade}
                           </td>
-
-
                           <td className="px-6 py-4 text-sm text-gray-600">
                             {cliente.maisRecente
                               ? new Date(
@@ -1668,15 +1673,75 @@ export default function AdminPage({ setCurrentPage }) {
                               })
                               : "—"}
                           </td>
-
                         </tr>
                       ))}
                   </tbody>
                 </table>
 
+                {/* Cards para mobile */}
+                <div className="grid gap-4 md:hidden">
+                  {filteredClientes
+                    .sort((a, b) => new Date(b.maisRecente) - new Date(a.maisRecente))
+                    .map((cliente, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleClienteClick(cliente)}
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 cursor-pointer hover:bg-yellow-50 transition"
+                      >
+                        {/* Cabeçalho com gradiente igual à tabela */}
+                        <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-2">
+                          <h2 className="text-lg font-bold text-white">
+                            {cliente.nome.charAt(0).toUpperCase() +
+                              cliente.nome.slice(1).toLowerCase()}
+                          </h2>
+                        </div>
+
+                        {/* Conteúdo */}
+                        <div className="p-4 space-y-2 text-sm text-gray-700">
+                          <p className="flex justify-between">
+                            <span className="font-semibold">Telefone:</span>
+                            <a
+                              href={`https://wa.me/55${cliente.telefone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-yellow-600 font-medium hover:underline"
+                            >
+                              {cliente.telefone}
+                            </a>
+                          </p>
+
+                          <p className="flex justify-between">
+                            <span className="font-semibold">Qtd. Agendamentos:</span>
+                            <span className="font-bold text-yellow-600">
+                              {cliente.quantidade}
+                            </span>
+                          </p>
+
+                          <p className="flex justify-between">
+                            <span className="font-semibold">Último Agendamento:</span>
+                            <span>
+                              {cliente.maisRecente
+                                ? new Date(
+                                  new Date(cliente.maisRecente).setDate(
+                                    new Date(cliente.maisRecente).getDate() + 1
+                                  )
+                                ).toLocaleDateString("pt-BR", {
+                                  day: "2-digit",
+                                  month: "long",
+                                  year: "numeric",
+                                })
+                                : "—"}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
               </div>
             </div>
           </div>
+
           {clienteSelecionado && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-2/3 relative p-6">
