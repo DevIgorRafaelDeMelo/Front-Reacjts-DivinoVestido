@@ -406,7 +406,7 @@ export default function AdminPage({ setCurrentPage }) {
                   e.preventDefault();
                   handlePageChange("agendamento");
                 }}
-                className={`px-4 py-2 rounded-lg transition duration-300 font-serif bg-yellow-500 text-white font-bold shadow-md`}
+                className={`px-4 py-2 rounded-lg transition duration-300 font-serif bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold shadow-md`}
               >
                 Agendar
               </button>
@@ -1613,7 +1613,7 @@ export default function AdminPage({ setCurrentPage }) {
                 <table className="hidden md:table min-w-full bg-white rounded-lg overflow-hidden shadow-md">
                   <thead>
                     <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-sm uppercase tracking-wide">
-                      <th className="px-6 py-3 text-left">#</th>
+
                       <th className="px-6 py-3 text-left">Nome</th>
                       <th className="px-6 py-3 text-left">Telefone</th>
                       <th className="px-6 py-3 text-left">Qtd. Agendamentos</th>
@@ -1621,43 +1621,51 @@ export default function AdminPage({ setCurrentPage }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredClientes.map((cliente, index) => (
-                      <tr
-                        key={index}
-                        onClick={() => handleClienteClick(cliente)}
-                        className="cursor-pointer transition odd:bg-gray-50 even:bg-white hover:bg-yellow-100"
-                      >
-                        <td className="px-6 py-4 text-sm text-gray-700">{index + 1}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                          {cliente.nome.charAt(0).toUpperCase() +
-                            cliente.nome.slice(1).toLowerCase()}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          <a
-                            href={`https://wa.me/55${cliente.telefone.replace(/\D/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
-                          >
-                            {/* Ícone do WhatsApp */}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
-                              <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
-                            </svg>
-                            {cliente.telefone}
-                          </a>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{cliente.quantidade}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {cliente.maisRecente
-                            ? new Date(cliente.maisRecente).toLocaleDateString("pt-BR", {
-                              day: "2-digit",
-                              month: "long",
-                              year: "numeric",
-                            })
-                            : "—"}
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredClientes
+                      .sort((a, b) => new Date(b.maisRecente) - new Date(a.maisRecente))
+                      .map((cliente, index) => (
+                        <tr
+                          key={index}
+                          onClick={() => handleClienteClick(cliente)}
+                          className="cursor-pointer transition odd:bg-gray-50 even:bg-white hover:bg-yellow-100"
+                        >
+
+                          <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                            {cliente.nome.charAt(0).toUpperCase() +
+                              cliente.nome.slice(1).toLowerCase()}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            <a
+                              href={`https://wa.me/55${cliente.telefone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-2 rounded-lg shadow hover:from-yellow-600 hover:to-yellow-700 transition font-medium text-sm"
+                            >
+                              {/* Ícone do WhatsApp */}
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 mr-2">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.17 1.6 5.98L0 24l6.2-1.6A11.94 11.94 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 22a9.94 9.94 0 01-5.3-1.55l-.38-.23-3.68.95.98-3.59-.25-.37A9.94 9.94 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.27-7.73c-.29-.15-1.71-.84-1.97-.94-.26-.1-.45-.15-.64.15-.19.29-.74.94-.91 1.13-.17.19-.34.21-.63.07-.29-.15-1.23-.45-2.34-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.48.07-.74.36-.26.29-1 1-1 2.43s1.02 2.82 1.16 3.01c.14.19 2 3.05 4.84 4.28.68.29 1.21.46 1.62.59.68.21 1.3.18 1.79.11.55-.08 1.71-.7 1.95-1.38.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34z" />
+                              </svg>
+                              {cliente.telefone}
+                            </a>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-center">
+                            <span className="inline-block     text-xs font-bold px-3 py-1 rounded-full ">
+                              {cliente.quantidade}
+                            </span>
+                          </td>
+
+
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {cliente.maisRecente
+                              ? new Date(cliente.maisRecente).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                              })
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
 
